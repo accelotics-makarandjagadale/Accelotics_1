@@ -1,7 +1,9 @@
+# contacts/serializers.py
+
 from rest_framework import serializers
 from .models import Contact
 
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = '__all__'
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'email', 'phone_number', 'message', 'file']  # Include 'file'

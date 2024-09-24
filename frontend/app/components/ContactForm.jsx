@@ -10,12 +10,15 @@ export default function ContactForm() {
     email: '',
     phone_number: '',
     message: '',
+    file: null,  // Add file state to form data
   });
 
   const handleChange = (e) => {
+    const { name, value, files } = e.target;
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: files ? files[0] : value,  // Update state for file input
     });
   };
 
@@ -23,13 +26,19 @@ export default function ContactForm() {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:8000/api/contacts/create/', {
+      const formDataToSend = new FormData();
+      for (const key in formData) {
+        formDataToSend.append(key, formData[key]);
+      }
+
+      const res = await fetch('http://localhost:8000/api/contacts/', { // Update URL here if necessary
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend,  // Send formData object instead of JSON
       });
+
+      // Log the response for debugging
+      const responseData = await res.json();
+      console.log(responseData);
 
       if (res.ok) {
         alert('Contact saved successfully!');
@@ -40,9 +49,10 @@ export default function ContactForm() {
           email: '',
           phone_number: '',
           message: '',
+          file: null,
         });
       } else {
-        alert('Error saving contact');
+        alert('Error saving contact: ' + responseData.detail || 'Unknown error');
       }
     } catch (err) {
       console.error(err);
@@ -102,6 +112,12 @@ export default function ContactForm() {
         onChange={handleChange}
         placeholder="Message"
         required
+        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+      />
+      <input
+        type="file"
+        name="file"
+        onChange={handleChange}
         style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
       />
       <button type="submit" style={{ width: '100%', backgroundColor: '#007bff', color: 'white', padding: '10px', borderRadius: '4px', cursor: 'pointer' }}>
