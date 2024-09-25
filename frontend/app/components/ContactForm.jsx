@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 
 export default function ContactForm() {
@@ -10,15 +9,14 @@ export default function ContactForm() {
     email: '',
     phone_number: '',
     message: '',
-    file: null,  // Add file state to form data
+    file: null, // Add file state to form data
   });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
     setFormData({
       ...formData,
-      [name]: files ? files[0] : value,  // Update state for file input
+      [name]: files ? files[0] : value, // Handle file inputs separately
     });
   };
 
@@ -26,22 +24,26 @@ export default function ContactForm() {
     e.preventDefault();
 
     try {
+      // Create a new FormData object to send all the data, including the file
       const formDataToSend = new FormData();
       for (const key in formData) {
-        formDataToSend.append(key, formData[key]);
+        if (formData[key] !== null) {
+          formDataToSend.append(key, formData[key]);
+        }
       }
 
-      const res = await fetch('http://localhost:8000/api/contacts/', { // Update URL here if necessary
+      // Send request with FormData object (no Content-Type needed, browser will set it automatically)
+      const res = await fetch('http://localhost:8000/api/contacts/create/', {
         method: 'POST',
-        body: formDataToSend,  // Send formData object instead of JSON
+        body: formDataToSend, // Send formData with file and text fields
       });
 
-      // Log the response for debugging
-      const responseData = await res.json();
-      console.log(responseData);
+      const responseData = await res.json(); // Parse the JSON response
+      console.log(responseData); // Debugging
 
       if (res.ok) {
         alert('Contact saved successfully!');
+        // Reset form data after submission
         setFormData({
           first_name: '',
           middle_name: '',
@@ -52,16 +54,27 @@ export default function ContactForm() {
           file: null,
         });
       } else {
-        alert('Error saving contact: ' + responseData.detail || 'Unknown error');
+        // Display error message from response
+        alert('Error saving contact: ' + (responseData.detail || 'Unknown error'));
       }
     } catch (err) {
-      console.error(err);
+      console.error(err); // Debug the actual error
       alert('An error occurred while submitting the form');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '400px', margin: 'auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        maxWidth: '400px',
+        margin: 'auto',
+        padding: '20px',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        backgroundColor: '#f9f9f9',
+      }}
+    >
       <input
         type="text"
         name="first_name"
@@ -69,7 +82,13 @@ export default function ContactForm() {
         onChange={handleChange}
         placeholder="First Name"
         required
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
       <input
         type="text"
@@ -77,7 +96,13 @@ export default function ContactForm() {
         value={formData.middle_name}
         onChange={handleChange}
         placeholder="Middle Name"
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
       <input
         type="text"
@@ -86,7 +111,13 @@ export default function ContactForm() {
         onChange={handleChange}
         placeholder="Last Name"
         required
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
       <input
         type="email"
@@ -95,7 +126,13 @@ export default function ContactForm() {
         onChange={handleChange}
         placeholder="Email"
         required
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
       <input
         type="tel"
@@ -104,7 +141,13 @@ export default function ContactForm() {
         onChange={handleChange}
         placeholder="Phone Number"
         required
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
       <textarea
         name="message"
@@ -112,15 +155,37 @@ export default function ContactForm() {
         onChange={handleChange}
         placeholder="Message"
         required
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
       <input
         type="file"
         name="file"
-        onChange={handleChange}
-        style={{ marginBottom: '10px', padding: '10px', border: '1px solid #ccc', borderRadius: '4px', width: '100%' }}
+        onChange={handleChange} // Handle file input
+        style={{
+          marginBottom: '10px',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          width: '100%',
+        }}
       />
-      <button type="submit" style={{ width: '100%', backgroundColor: '#007bff', color: 'white', padding: '10px', borderRadius: '4px', cursor: 'pointer' }}>
+      <button
+        type="submit"
+        style={{
+          width: '100%',
+          backgroundColor: '#007bff',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
         Submit
       </button>
     </form>

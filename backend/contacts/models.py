@@ -12,4 +12,4 @@ class Contact(models.Model):
     file = models.FileField(upload_to='uploads/', blank=True)  # Add this line
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"        

@@ -1,14 +1,17 @@
+// lib/api.js
+
 export async function fetchContacts() {
   const res = await fetch('http://localhost:8000/api/contacts/list/');
   if (!res.ok) {
     throw new Error('Failed to fetch contacts');
   }
-  return res.json();
+  return res.json(); // Return the fetched contacts
 }
 
 export async function deleteContact(id) {
   try {
-    const res = await fetch(`http://localhost:8000/api/contacts/${id}/delete/`, {
+    // Ensure the URL matches your Django delete endpoint
+    const res = await fetch(`http://localhost:8000/api/contacts/delete/${id}/`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json', // Optional: Specify content type if needed
@@ -21,7 +24,7 @@ export async function deleteContact(id) {
       throw new Error(`Failed to delete contact: ${errorMessage}`);
     }
 
-    return res;
+    return res; // Return the response on success
   } catch (error) {
     console.error('Error deleting contact:', error);
     return { ok: false }; // Return an object indicating failure
