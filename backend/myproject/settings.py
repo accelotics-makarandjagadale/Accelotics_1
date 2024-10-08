@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'contacts', 
+    'contacts',  # Your app name
 ]
 
 MIDDLEWARE = [
@@ -44,9 +45,9 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',  # Uncomment in production
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',  # Corrected line
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -75,11 +76,11 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mak_data',  
-        'USER': 'mak_user',  
-        'PASSWORD': '6535',  
-        'HOST': 'localhost',
-        'PORT': '5432',  
+        'NAME': os.getenv('POSTGRES_DB', 'mak_data'),  # Default is 'mak_data'
+        'USER': os.getenv('POSTGRES_USER', 'mak_user'),  # Default is 'mak_user'
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', '6535'),  # Default is '6535'
+        'HOST': os.getenv('POSTGRES_HOST', 'db'),  # Use 'db' as Docker service, not localhost
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),  # Default Postgres port
     }
 }
 
@@ -112,7 +113,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
@@ -124,5 +125,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Your frontend on port 3000
+    'http://localhost:3000',  # Allow requests from your frontend on port 3000
 ]

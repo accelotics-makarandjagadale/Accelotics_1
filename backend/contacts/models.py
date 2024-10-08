@@ -9,7 +9,7 @@ class Contact(models.Model):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15)
     message = models.TextField()
-    file = models.FileField(upload_to='uploads/', blank=True)  # Add this line
+    file_upload = models.FileField(upload_to='uploads/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"        

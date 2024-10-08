@@ -1,193 +1,249 @@
 "use client";
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    first_name: '',
-    middle_name: '',
-    last_name: '',
-    email: '',
-    phone_number: '',
-    message: '',
-    file: null, // Add file state to form data
-  });
+  const [experiences, setExperiences] = useState([
+    { id: Date.now(), formData: getInitialFormData() }
+  ]);
 
-  const handleChange = (e) => {
+  function getInitialFormData() {
+    return {
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      email: "",
+      phone_number: "",
+      message: "",
+      file_upload: null,
+    };
+  }
+
+  const handleChange = (id, e) => {
     const { name, value, files } = e.target;
-    setFormData({
-      ...formData,
-      [name]: files ? files[0] : value, // Handle file inputs separately
-    });
+    setExperiences((prevExperiences) =>
+      prevExperiences.map((exp) =>
+        exp.id === id
+          ? {
+              ...exp,
+              formData: {
+                ...exp.formData,
+                [name]: files ? files[0] : value,
+              },
+            }
+          : exp
+      )
+    );
+  };
+
+  const addExperience = () => {
+    setExperiences((prevExperiences) => [
+      ...prevExperiences,
+      { id: Date.now(), formData: getInitialFormData() },
+    ]);
+  };
+
+  const deleteExperience = (id) => {
+    setExperiences((prevExperiences) =>
+      prevExperiences.filter((exp) => exp.id !== id)
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      // Create a new FormData object to send all the data, including the file
-      const formDataToSend = new FormData();
-      for (const key in formData) {
-        if (formData[key] !== null) {
-          formDataToSend.append(key, formData[key]);
+      experiences.forEach(async (exp) => {
+        const formDataToSend = new FormData();
+        for (const key in exp.formData) {
+          if (exp.formData[key] !== null) {
+            formDataToSend.append(key, exp.formData[key]);
+          }
         }
-      }
 
-      // Send request with FormData object (no Content-Type needed, browser will set it automatically)
-      const res = await fetch('http://localhost:8000/api/contacts/create/', {
-        method: 'POST',
-        body: formDataToSend, // Send formData with file and text fields
-      });
-
-      const responseData = await res.json(); // Parse the JSON response
-      console.log(responseData); // Debugging
-
-      if (res.ok) {
-        alert('Contact saved successfully!');
-        // Reset form data after submission
-        setFormData({
-          first_name: '',
-          middle_name: '',
-          last_name: '',
-          email: '',
-          phone_number: '',
-          message: '',
-          file: null,
+        const res = await fetch("http://localhost:8000/create/", {
+          method: "POST",
+          body: formDataToSend,
         });
-      } else {
-        // Display error message from response
-        alert('Error saving contact: ' + (responseData.detail || 'Unknown error'));
-      }
+
+        const responseData = await res.json();
+        console.log(responseData);
+
+        if (res.ok) {
+          alert("Contact saved successfully!");
+        } else {
+          alert("Error saving contact: " + (responseData.detail || "Unknown error"));
+        }
+      });
     } catch (err) {
-      console.error(err); // Debug the actual error
-      alert('An error occurred while submitting the form');
+      console.error(err);
+      alert("An error occurred while submitting the form");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        maxWidth: '400px',
-        margin: 'auto',
-        padding: '20px',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#f9f9f9',
-      }}
-    >
-      <input
-        type="text"
-        name="first_name"
-        value={formData.first_name}
-        onChange={handleChange}
-        placeholder="First Name"
-        required
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <input
-        type="text"
-        name="middle_name"
-        value={formData.middle_name}
-        onChange={handleChange}
-        placeholder="Middle Name"
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <input
-        type="text"
-        name="last_name"
-        value={formData.last_name}
-        onChange={handleChange}
-        placeholder="Last Name"
-        required
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <input
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="Email"
-        required
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <input
-        type="tel"
-        name="phone_number"
-        value={formData.phone_number}
-        onChange={handleChange}
-        placeholder="Phone Number"
-        required
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <textarea
-        name="message"
-        value={formData.message}
-        onChange={handleChange}
-        placeholder="Message"
-        required
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <input
-        type="file"
-        name="file"
-        onChange={handleChange} // Handle file input
-        style={{
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          width: '100%',
-        }}
-      />
-      <button
-        type="submit"
-        style={{
-          width: '100%',
-          backgroundColor: '#007bff',
-          color: 'white',
-          padding: '10px',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
+    <form onSubmit={handleSubmit} style={formStyle}>
+      {experiences.map((exp, index) => (
+        <div key={exp.id} style={experienceStyle}>
+          <div style={fieldContainer}>
+            <div style={{ flex: 1 }}>
+              <label>First Name</label>
+              <input
+                type="text"
+                name="first_name"
+                value={exp.formData.first_name}
+                onChange={(e) => handleChange(exp.id, e)}
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label>Middle Name</label>
+              <input
+                type="text"
+                name="middle_name"
+                value={exp.formData.middle_name}
+                onChange={(e) => handleChange(exp.id, e)}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div style={fieldContainer}>
+            <div style={{ flex: 1 }}>
+              <label>Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                value={exp.formData.last_name}
+                onChange={(e) => handleChange(exp.id, e)}
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={exp.formData.email}
+                onChange={(e) => handleChange(exp.id, e)}
+                style={inputStyle}
+                required
+              />
+            </div>
+          </div>
+
+          <div style={fieldContainer}>
+            <div style={{ flex: 1 }}>
+              <label>Phone Number</label>
+              <input
+                type="tel"
+                name="phone_number"
+                value={exp.formData.phone_number}
+                onChange={(e) => handleChange(exp.id, e)}
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label>Message</label>
+              <textarea
+                name="message"
+                value={exp.formData.message}
+                onChange={(e) => handleChange(exp.id, e)}
+                style={{ ...inputStyle, height: "80px" }}
+                required
+              />
+            </div>
+          </div>
+
+          <div style={fieldContainer}>
+            <div style={{ flex: 1 }}>
+              <label>File Upload</label>
+              <input
+                type="file"
+                name="file_upload"
+                onChange={(e) => handleChange(exp.id, e)}
+                style={inputStyle}
+              />
+            </div>
+            {experiences.length > 1 && (
+              <button
+                type="button"
+                onClick={() => deleteExperience(exp.id)}
+                style={deleteButtonStyle}
+              >
+                Delete Experience
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+
+      <button type="button" onClick={addExperience} style={addButtonStyle}>
+        Add Another Experience
+      </button>
+
+      <button type="submit" style={submitButtonStyle}>
         Submit
       </button>
     </form>
   );
 }
+
+// Styles
+const formStyle = {
+  maxWidth: "600px",
+  margin: "auto",
+  padding: "20px",
+  border: "1px solid #ccc",
+  borderRadius: "8px",
+  backgroundColor: "#f9f9f9",
+};
+
+const experienceStyle = {
+  backgroundColor: "#f0f0f0",
+  padding: "15px",
+  marginBottom: "20px",
+  borderRadius: "8px",
+};
+
+const fieldContainer = {
+  display: "flex",
+  gap: "10px",
+  marginBottom: "10px",
+};
+
+const inputStyle = {
+  padding: "10px",
+  border: "1px solid #ccc",
+  borderRadius: "8px",
+  backgroundColor: "#eaeaea",
+  width: "100%",
+};
+
+const deleteButtonStyle = {
+  padding: "10px",
+  backgroundColor: "red",
+  color: "white",
+  borderRadius: "8px",
+  cursor: "pointer",
+};
+
+const addButtonStyle = {
+  padding: "10px",
+  backgroundColor: "green",
+  color: "white",
+  borderRadius: "8px",
+  marginBottom: "20px",
+  cursor: "pointer",
+  width: "100%",
+};
+
+const submitButtonStyle = {
+  padding: "10px",
+  backgroundColor: "#007bff",
+  color: "white",
+  borderRadius: "10px",
+  cursor: "pointer",
+  width: "100%",
+};

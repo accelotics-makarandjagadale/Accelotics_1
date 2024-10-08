@@ -2,8 +2,14 @@
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/contacts/', include('contacts.urls')),  # Ensure this line is present for contacts app
+    path('', include('contacts.urls')),  # Includes the contacts app's URLs
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
